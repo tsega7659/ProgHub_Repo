@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload</title>
+</head>
+<body>
+    <h2>Upload an Image</h2>
+    <input type="file" id="imageInput">
+    <button onclick="uploadImage()">Upload</button>
+    <p id="status"></p>
+    <img id="preview" style="max-width: 300px; display: none;">
+
+    <script>
+       async function uploadImage() {
+    const input = document.getElementById("imageInput");
+    const file = input.files[0];
+
+    if (!file) {
+        alert("Please select an image.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    document.getElementById("status").innerText = "Uploading...";
+
+    try {
+        const res = await fetch("http://localhost:5000/upload-image", {
+            method: "POST",
+            body: formData,
+        });
+
+        if (!res.ok) {
+            const errorText = await res.text();
+            throw new Error(errorText);
+        }
+
+        const data = await res.json();
+
+        if (data.imageUrl) {
+            document.getElementById("preview").src = data.imageUrl;
+            document.getElementById("preview").style.display = "block";
+            document.getElementById("status").innerText = "Upload Successful!";
+        } else {
+            document.getElementById("status").innerText = "Upload failed.";
+        }
+    } catch (error) {
+        console.error("Error uploading image:", error);
+        document.getElementById("status").innerText = "Error uploading image.";
+    }
+}
+
+    </script>
+</body>
+</html>
